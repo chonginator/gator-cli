@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/chonginator/gator-cli/internal/config"
 )
@@ -9,14 +10,15 @@ import (
 func main() {
 	cfg, err := config.Read()
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("error reading config: %v", err)
 	}
+	fmt.Printf("Read config: %+v\n", cfg)
 
 	cfg.SetUser("chonginator")
 
 	cfg, err = config.Read()
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalf("error reading config: %v", err)
 	}
-	fmt.Println(cfg)
+	fmt.Printf("Read config again: %+v\n", cfg)
 }
