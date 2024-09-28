@@ -3,14 +3,14 @@ package config
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 )
 
+const configFileName = ".gatorconfig.json"
 type Config struct{
 	DBURL string						`json:"db_url"`
 	CurrentUserName string	`json:"current_user_name"`
 }
-
-const configFileName = ".gatorconfig.json"
 
 func Read() (Config, error) {
 	configFilePath, err := getConfigFilePath()
@@ -23,29 +23,27 @@ func Read() (Config, error) {
 		return Config{}, err
 	}
 
-	config := Config{}
-	err = json.Unmarshal(configFile, &config)
+	cfg := Config{}
+	err = json.Unmarshal(configFile, &cfg)
 	if err != nil {
 		return Config{}, err
 	}
 
-	return config, nil
+	return cfg, nil
 }
 
 func getConfigFilePath() (string, error) {
-	homeDir, err := os.UserHomeDir()
+	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
-	return (
-		homeDir +
-		"/Documents/workspace/github.com/chonginator/gator-cli/" +
-		configFileName), nil
+	fullPath := filepath.Join(home, configFileName)
+	return fullPath, nil
 }
 
-func (cfg Config) SetUser(userName string) error {
+func (cfg *Config) SetUser(userName string) error {
 	cfg.CurrentUserName = userName
-	err := write(cfg)
+	err := write(*cfg)
 	if err != nil { 
 		return err
 	}
