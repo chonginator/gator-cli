@@ -3,20 +3,17 @@ package main
 import "fmt"
 
 func handlerLogin(state *state, cmd command) error {
-	if state == nil || state.cfg == nil {
-		return fmt.Errorf("no config state")
-	}
-
-	if len(cmd.args) == 0 {
-		return fmt.Errorf("a username is required")
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("usage: %s <name>", cmd.name)
 	}
 
 	userName := cmd.args[0]
+
 	err := state.cfg.SetUser(userName)
 	if err != nil {
-		return err
+		return fmt.Errorf("couldn't set user: %w", err)
 	}
 
-	fmt.Printf("User has been set: %s\n", userName)
+	fmt.Println("User switched successfully!")
 	return nil
 }
