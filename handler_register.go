@@ -18,20 +18,26 @@ func handlerRegister(state *state, cmd command) error {
 
 	user, err := state.db.CreateUser(context.Background(), database.CreateUserParams{
 		ID: uuid.New(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
 		Name: userName,
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("couldn't create user: %w", err)
 	}
 
-	err = state.cfg.SetUser(userName)
+	err = state.cfg.SetUser(user.Name)
 	if err != nil {
-		return err
+		return fmt.Errorf("couldn't set current user: %w", err)
 	}
 
-	fmt.Printf("User created: %+v\n", user)
+	fmt.Println("User created successfully:")
+	printUser(user)
 
 	return nil
+}
+
+func printUser(user database.User) {
+	fmt.Printf(" * ID:		%v\n", user.ID)
+	fmt.Printf(" * Name:		%v\n", user.Name)
 }

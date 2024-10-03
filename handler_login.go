@@ -14,12 +14,12 @@ func handlerLogin(state *state, cmd command) error {
 
 	_, err := state.db.GetUser(context.Background(), userName)
 	if err != nil {
-		return err
+		return fmt.Errorf("couldn't find user: %w", err)
 	}
 
 	err = state.cfg.SetUser(userName)
 	if err != nil {
-		return fmt.Errorf("couldn't set user: %w", err)
+		return fmt.Errorf("couldn't set current user: %w", err)
 	}
 
 	fmt.Println("User switched successfully!")
