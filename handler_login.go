@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 func handlerLogin(state *state, cmd command) error {
 	if len(cmd.args) != 1 {
@@ -9,7 +12,12 @@ func handlerLogin(state *state, cmd command) error {
 
 	userName := cmd.args[0]
 
-	err := state.cfg.SetUser(userName)
+	_, err := state.db.GetUser(context.Background(), userName)
+	if err != nil {
+		return err
+	}
+
+	err = state.cfg.SetUser(userName)
 	if err != nil {
 		return fmt.Errorf("couldn't set user: %w", err)
 	}

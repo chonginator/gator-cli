@@ -1,10 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 
+	_ "github.com/lib/pq"
+
 	"github.com/chonginator/gator-cli/internal/config"
+	"github.com/chonginator/gator-cli/internal/database"
 )
 
 func main() {
@@ -13,7 +17,15 @@ func main() {
 		log.Fatalf("error reading config: %v", err)
 	}
 
+	db, err := sql.Open("postgres", cfg.DBURL)
+	if err != nil {
+		log.Fatalf("error opening database: %v", err)
+	}
+	defer db.Close()
+	dbQueries := database.New(db)
+
 	programState := state{
+		db: dbQueries,
 		cfg: &cfg,
 	}
 
@@ -22,6 +34,7 @@ func main() {
 	}
 
 	commands.register("login", handlerLogin)
+	commands.register("register", handlerRegister)
 
 	if len(os.Args) < 2 {
 		log.Fatalf("not enough arguments provided")
