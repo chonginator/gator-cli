@@ -11,7 +11,7 @@ import (
 
 func handlerAddFeed(state *state, cmd command) error {
 	if len(cmd.args) != 2 {
-		return fmt.Errorf("usage: addfeed <name> <url>")
+		return fmt.Errorf("usage: %s <name> <url>", cmd.name)
 	}
 
 	name, url := cmd.args[0], cmd.args[1]
@@ -33,8 +33,23 @@ func handlerAddFeed(state *state, cmd command) error {
 		return fmt.Errorf("couldn't add feed: %w", err)
 	}
 
-	fmt.Println("Feed created successfully!")
+	feedFollow, err := state.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
+		ID: uuid.New(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		UserID: user.ID,
+		FeedID: feed.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("couldn't follow feed: %w", err)
+	}
+
+	fmt.Println("Feed created successfully:")
 	printFeed(feed, user)
+	fmt.Println()
+	fmt.Println("Feed followed successfully:")
+	printFeedFollow(feedFollow.UserName, feedFollow.FeedName)
+	fmt.Println("=====================================")
 	 
 	return nil
 }
