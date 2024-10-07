@@ -9,14 +9,9 @@ import (
 	"github.com/google/uuid"
 )
 
-func handlerFollow(state *state, cmd command) error {
+func handlerFollow(state *state, cmd command, user database.User) error {
 	if len(cmd.args) != 1 {
 		return fmt.Errorf("usage: %s <feed_url>", cmd.name)
-	}
-
-	currentUser, err := state.db.GetUser(context.Background(), state.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("couldn't get current user: %w", err)
 	}
 
 	feed, err := state.db.GetFeedByUrl(context.Background(), cmd.args[0])
@@ -29,7 +24,7 @@ func handlerFollow(state *state, cmd command) error {
 			ID: 			 uuid.New(),
 			CreatedAt: time.Now().UTC(),
 			UpdatedAt: time.Now().UTC(),
-			UserID: 	 currentUser.ID,
+			UserID: 	 user.ID,
 			FeedID: 	 feed.ID,
 	})
 	if err != nil {
@@ -41,15 +36,8 @@ func handlerFollow(state *state, cmd command) error {
 	return nil
 }
 
-func handlerListFollowing(state *state, cmd command) error {
-	currentUser, err := state.db.GetUser(context.Background(),
-		state.cfg.CurrentUserName,
-	)
-	if err != nil {
-		return fmt.Errorf("couldn't get current user: %w", err)
-	}
-	
-	feedFollows, err := state.db.GetFeedFollowsForUser(context.Background(), currentUser.ID)
+func handlerListFollowing(state *state, cmd command, user database.User) error {
+	feedFollows, err := state.db.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		return fmt.Errorf("couldn't get feeds current user is following: %w", err)
 	}
@@ -59,7 +47,7 @@ func handlerListFollowing(state *state, cmd command) error {
 		return nil
 	}
 
-	fmt.Printf("Feed follows for user: %s\n", currentUser.Name)
+	fmt.Printf("Feed follows for user: %s\n", user.Name)
 	for _, follow := range feedFollows {
 		fmt.Printf(" * %s\n", follow.FeedName)
 	}
