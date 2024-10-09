@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/chonginator/gator-cli/internal/database"
@@ -51,10 +52,12 @@ func scrapeFeeds(state *state) {
 	}
 
 	for _, item := range rssFeed.Channel.Item {
-		pubDate, err := time.Parse(time.RFC1123Z, item.PubDate)
-		if err != nil {
-			log.Printf("Couldn't parse post %s publication date: %v", item.Title, item.PubDate)
+		publishedAt := sql.NullTime{}
+		if t, err := time.Parse(time.RFC1123Z, item.PubDate); err == nil {
+			publishedAt.Time = t
+			publishedAt.Valid = true
 		}
+
 		_, err = state.db.CreatePost(context.Background(), database.CreatePostParams{
 			ID: uuid.New(),
 			CreatedAt: time.Now().UTC(),
@@ -63,12 +66,15 @@ func scrapeFeeds(state *state) {
 			Url: item.Link,
 			Description: sql.NullString{
 				String: item.Description,
-				Valid: item.Description != "",
+				Valid: true,
 			},
-			PublishedAt: pubDate,
+			PublishedAt: publishedAt,
 			FeedID: nextFeed.ID,
 		})
 		if err != nil {
+			if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
+				continue
+			}
 			log.Printf("Couldn't add post %s to database: %v", item.Title, err)
 		}
 	}
