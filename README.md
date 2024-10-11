@@ -32,7 +32,7 @@ For example:
 {"db_url": "postgres://chonginator@localhost:5432/gator"}
 ```
 
-## 5. Make sure that the PostgreSQL database server is running:
+### 5. Make sure that the PostgreSQL database server is running:
 
 ```bash
 # For macOS
