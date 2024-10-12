@@ -17,19 +17,22 @@ Gator uses a PostgreSQL database to store posts, so you'll need to download and 
 ### 3. Install the Gator CLI
 
 This command will download, build, and install the Gator CLI in your Go toolchain's `bin` directory:
-`go install github.com/chonginator/gator-cli`
+
+```bash
+go install github.com/chonginator/gator-cli
+```
 
 ### 4. Set up the config file
 
-After installation, you'll need to set up a configuration file for Gator. Create a file named `gatorconfig.json` in your home directory with the connection URL for the PostgreSQL database in the format:
+After installation, you'll need to set up a configuration file for Gator. Create a file named `gatorconfig.json` in your home directory with the database connection URL in the format:
 
 ```json
-{"db_url": "postgres://username:password@host:port/database"}
+{"db_url": "postgres://username:password@host:port/database?sslmode=disable"}
 ```
 
 For example:
 ```json
-{"db_url": "postgres://chonginator@localhost:5432/gator"}
+{"db_url": "postgres://chonginator@localhost:5432/gator?sslmode=disable"}
 ```
 
 ### 5. Make sure that the PostgreSQL database server is running:
@@ -53,4 +56,4 @@ Here are some commands you can run with Gator:
 - `gator feeds`: List all the feeds added to Gator
 - `gator follow <feed_url>`: Follow a feed
 - `gator agg <time_between_reqs>`: Starts a long-running background service to fetch the latest posts at a set interval
-- `gator browse <limit>`: View all the latest posts from the feeds the current user follows
+- `gator browse [limit]`: View all the latest posts from the feeds the current user follows
